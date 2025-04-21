@@ -4,14 +4,16 @@ import Arch from "../components/Arch"
 import Faq from "../components/Faq"
 import Footer from "../components/Footer"
 import { Testimonials } from "../components/Testimonials"
+import { StickyScrollFeatures } from "../components/FeaturesScroll"
 
 export function Landing() {
     return (
         <div>
             <Home/>
-            <Testimonials/>
+            {/* <Testimonials/> */}
             <Features/>
             <Arch />
+            <StickyScrollFeatures/>
             <Faq />
             <Footer />
         </div>

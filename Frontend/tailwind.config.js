@@ -2,14 +2,19 @@
 export default {
   content: [
     "./src/**/*.{html,js,jsx,ts,tsx}",
-    // './node_modules/flyonui/dist/js/**/*.js',
   ],
   theme: {
     extend: {
       colors: {
-        customBg: '#020616',
-        customText: '#022439',
-      }
+        custom_5 : '#092834',
+        custom_4 : '#1A3E4C',
+        custom_3 : '#347B98',
+        custom_2 : '#67AFCB',
+        custom_1 : '#E4F1F6',
+      },
+      fontFamily: {
+        custom: ['Ubuntu', 'sans-serif'],
+      },
     },
   },
   plugins: [

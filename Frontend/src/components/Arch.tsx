@@ -3,8 +3,8 @@ export default function Arch() {
     var arr = [true,false,false];
     const [showCard,setShowCard] = useState(arr);
     return (
-        <div className="">
-            <div className="flex my-28 mx-60">
+        <div className=" py-28 px-60 bg-custom_1">
+            <div className="flex">
                 <div className="w-[40%]">
                     <div className="">
                         <div className="border-2 border-red-500 rounded-3xl m-2.5 w-80 h-auto cursor-pointer" onClick={()=>setShowCard([true,false,false])}>

@@ -3,6 +3,7 @@
 import VideoCard from "./VideoCard"
 import { LampContainer } from "./ui/lamp";
 import { motion } from "framer-motion";
+import { TextHoverEffect } from "./ui/text-hover-effect";
 
 export default function Features() {
     return (
@@ -31,6 +32,9 @@ export default function Features() {
                             </div>
                         </motion.h1>
                     </LampContainer>
+                    {/* <div className="h-[50%] bg-customBg">
+                        <TextHoverEffect text="TwentyOne" />
+                    </div> */}
                     {/* <div className="text-red-600 text-2xl flex justify-center">Features</div>
                     <div className="text-6xl m-10 flex justify-center ">Introducing our Search API</div>
                     <div className="text-xl flex justify-center">
@@ -43,8 +47,8 @@ export default function Features() {
                     </div> */}
                 </div>
             </div>
-            <VideoCard />
-            <VideoCard />
+            {/* <VideoCard />
+            <VideoCard /> */}
         </div>
     )
 }

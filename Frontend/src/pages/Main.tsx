@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player";
 import DownloadAndCopyPdf from "../components/PDF";
 import { PlaceholdersAndVanishInput } from "../components/ui/placeholders-and-vanish-input";
 import { FileUpload } from "../components/FileUpload";
+import axios from 'axios'
+import Sidebar from "../components/Sidebar";
 
 const transcript: string = `# Project Documentation
 
@@ -33,10 +35,17 @@ const greet = (name: string): string => {
 
 Thanks for using our Markdown to PDF converter!`
 
+type ChatType = { "identity": string, "text": string }
 export default function MainPage() {
-    const [selectedTab, setSelectedTab] = useState<'Summary' | 'Ask'>('Summary');
-    const sidebarList = ["New Meeting", "Previous Meeting", "Summary", "Ask TwentyOne", "Help"];
-    const [sender, setSender] = useState<'user' | 'assistant'>('user');
+    const [selectedTab, setSelectedTab] = useState<'Summary' | 'Ask'>('Ask');
+    const [userMessage, setUserMessage] = useState<string>("")
+    const [allMessages, setAllMessages] = useState<ChatType[]>([]);
+    const messagesEndRef = useRef<HTMLDivElement>(null);  // Ref for the end of the messages
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [allMessages]);
     const placeholders = [
         "What's the first rule of Fight Club?",
         "Who is Tyler Durden?",
@@ -45,25 +54,31 @@ export default function MainPage() {
         "How to assemble your own PC?",
     ];
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setUserMessage(e.target.value);
         console.log(e.target.value);
     };
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log("submitted");
+        setAllMessages((prevMessages) => [...prevMessages, { "identity": "user", "text": userMessage }]);
+
+        axios.post('http://localhost:8000/chat', {
+            message: userMessage
+        }).then((response) => {
+            console.log(response.data);
+            setAllMessages((prevMessages) => [...prevMessages, ({ "identity": "assistant", "text": response.data.message })]);
+        }).catch((error) => {
+            console.error('There was an error!', error);
+        });
     };
+    const messages = [];
     return (
-        <div className="bg-white">
+        <div className="bg-custom_1">
             <div className="flex">
-                <div className="w-[15%] bg-customBg h-screen text-lg text-white flex flex-col justify-center gap-6
-                p-6 ">
-                    {sidebarList.map((item, index) => (
-                        <div key={index} className="cursor-pointer hover:underline decoration-white">{item}</div>
-                    ))}
-                </div>
+                <Sidebar/>
                 <div className=" w-[85%] overflow-y-auto h-screen ">
                     <div className="flex w-full">
                         <div className="w-[70%] h-[600px] p-5">
-                            {/* <ReactPlayer
+                            <ReactPlayer
                                 url="https://www.youtube.com/watch?v=uLrReyH5cu0"
                                 controls
                                 playing
@@ -72,10 +87,10 @@ export default function MainPage() {
                                 className="rounded-2xl overflow-hidden"
                                 width="100%"
                                 height="100%"
-                            /> */}
-                            <FileUpload/>
+                            />
+                            {/* <FileUpload/> */}
                         </div>
-                        <div className="w-[30%] bg-customBg h-[562px] rounded-2xl my-5 mr-2">
+                        <div className="w-[30%] bg-custom_5 h-[562px] rounded-2xl my-5 mr-2">
                             <div className="flex justify-between p-4 text-white">
                                 <div className="text-2xl">Transcript</div>
                                 <DownloadAndCopyPdf text={transcript} />
@@ -84,7 +99,7 @@ export default function MainPage() {
                             <div className="mx-4 my-1">
                                 <input className="bg-white w-full py-1 px-3 rounded-lg outline-none" type="text" />
                             </div>
-                            <div className="text-white h-[430px] overflow-y-auto p-4 my-2">
+                            <div className="text-white h-[430px] overflow-y-auto p-4 my-2 ">
                                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo quae illum dignissimos cupiditate, soluta eaque. Accusamus laboriosam perspiciatis quibusdam aperiam ipsa est consequuntur dolore, voluptatum qui sed exercitationem. Sapiente, repellendus.
                                 Lorem ipsum dolor, sit amet consectetur adipisicing elit. Voluptatum ducimus saepe praesentium ab numquam distinctio inventore aliquam enim autem repellendus, quod perferendis quam. Dolores asperiores eos distinctio ratione, sint non!
                                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo quae illum dignissimos cupiditate, soluta eaque. Accusamus laboriosam perspiciatis quibusdam aperiam ipsa est consequuntur dolore, voluptatum qui sed exercitationem. Sapiente, repellendus.
@@ -97,11 +112,11 @@ export default function MainPage() {
                     </div>
                     <div>
                         <div className="flex gap-4 mx-8 text-xl">
-                            <div className={`cursor-pointer text-black ${selectedTab == 'Summary' ? "border-b-2 border-customBg" : ""}`} onClick={() => setSelectedTab('Summary')}>Summary</div>
-                            <div className={`cursor-pointer ${selectedTab == 'Ask' ? "border-b-2 border-customBg" : ""}`} onClick={() => setSelectedTab('Ask')}>Ask</div>
+                            <div className={`cursor-pointer text-black ${selectedTab == 'Summary' ? "border-b-2 border-custom_5" : ""}`} onClick={() => setSelectedTab('Summary')}>Summary</div>
+                            <div className={`cursor-pointer ${selectedTab == 'Ask' ? "border-b-2 border-custom_5" : ""}`} onClick={() => setSelectedTab('Ask')}>Ask</div>
                         </div>
                         {selectedTab == 'Summary' ?
-                            <div className="bg-customBg h-[600px] my-5 mx-6 rounded-2xl">
+                            <div className="bg-custom_5 h-[650px] my-5 mx-6 rounded-2xl">
                                 <div className=" overflow-auto">
                                     <div className="p-4 bg-customBg flex justify-end gap-4 rounded-2xl">
                                         <DownloadAndCopyPdf text={transcript} />
@@ -109,23 +124,30 @@ export default function MainPage() {
                                     <div className="text-white m-6">{transcript}</div>
                                 </div>
                             </div> :
-                            <div className="bg-customBg h-[600px] my-5 mx-6 rounded-2xl ">
+                            <div className="bg-custom_5 h-[650px] my-5 mx-6 rounded-2xl ">
                                 <div className="h-[85%] w-full overflow-auto">
-                                    {sender === 'user' ? (
-                                        <div className="flex justify-end m-6">
-                                            <div className="chat chat-sender">
-                                                <div className="bg-white text-customBg p-3 m-2 max-w-[800px] rounded-2xl">
-                                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Cupiditate esse eveniet necessitatibus excepturi ducimus nesciunt repellendus quis quae, velit iste, dolorem explicabo deleniti tenetur illum? Sequi odio recusandae excepturi facilis.
+                                    {allMessages.map((item, index) => (
+                                        <div key={index}>
+                                            {item.identity === 'user' ? (
+                                                <div className="flex justify-end m-6">
+                                                    <div className="chat chat-sender">
+                                                        <div className="bg-white text-customBg p-3 m-2 max-w-[800px] rounded-2xl">
+                                                            {item.text}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            ) : (
+                                                <div className="flex justify-start m-6">
+                                                    <div className="bg-customBg text-white p-3 max-w-[800px] rounded-2xl">
+                                                        {item.text}
+                                                    </div>
+                                                </div>
+                                            )}
+                                            <div ref={messagesEndRef} />
                                         </div>
-                                    ) : (
-                                        <div className="flex justify-start m-6">
-                                            <div className="bg-customBg text-white p-3 max-w-[800px] rounded-2xl">
-                                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Odio culpa, aperiam autem recusandae facilis molestias cumque nostrum. Est, minus. Incidunt itaque, odit numquam consectetur assumenda dolor sequi eum modi excepturi.
-                                            </div>
-                                        </div>
-                                    )}
+
+                                    ))}
+
 
                                 </div>
                                 <div className="w-full h-[15%] py-6 px-12">
